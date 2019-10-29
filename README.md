@@ -55,7 +55,7 @@ There are two options:
     The navigator will automatically open in a new browser tab at http://localhost:7500.
 2. Start the automation logic by starting bots. Type:
     ```shell
-    java -jar target/inventory-management-0.0.1-SNAPSHOT.jar
+    java -jar target/inventory-management-0.0.1-SNAPSHOT.jar -p 6865
     ```
 3. Set up the working directory for the local bitcoin network. If it does not exist. Type:
     ```shell
