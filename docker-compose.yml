@@ -11,7 +11,7 @@ services:
       context: .
       dockerfile: Dockerfile-sandbox
     ports:
-      - "127.0.0.1:7600:7600"
+      - "127.0.0.1:6865:6865"
   ex-inventory-management-navigator:
     image: digitalasset/ex-inventory-management-navigator:0.0.1
     build:
@@ -23,7 +23,7 @@ services:
       - "127.0.0.1:7500:7500"
     environment:
       - SANDBOX_HOST=ex-inventory-management-sandbox
-      - SANDBOX_PORT=7600
+      - SANDBOX_PORT=6865
   ex-inventory-management-bitcoin:
       image: digitalasset/ex-inventory-management-bitcoin:0.0.1
       build:
@@ -41,7 +41,7 @@ services:
       - "ex-inventory-management-bitcoin"
     environment:
       - SANDBOX_HOST=ex-inventory-management-sandbox
-      - SANDBOX_PORT=7600
+      - SANDBOX_PORT=6865
       - BITCOIN_HOST=ex-inventory-management-bitcoin
       - BITCOIN_PORT=19091
       - BITCOIN_USERNAME=admin1
