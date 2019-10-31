@@ -166,20 +166,22 @@ simpleSuccessfulTransfer = scenario do
 
   transferRequestResult <- parties.operator `submit` exercise uncheckedTransferRequestCid ValidateRequest
 
-  case transferRequestResult of
-    LimitFail _ -> fail "expected successful address check, but got address problems"
-    ReputationFail _ -> fail "expected successful limit check, but got limit violation"
-    ValidationSuccess transferRequestCid1 -> do
-          transfer <- transmit parties contracts transferRequestCid1 fee utxoCid
-          let details =
-                case transfer of
-                  Right newTransfer -> newTransfer.transferDetails
-                  Left insufficientTransferRequest -> insufficientTransferRequest.transferDetails
-          details.amount === satoshiAmount
+  let
+    transferRequestCid1 = case transferRequestResult of
+      LimitFail _ -> error "expected successful address check, but got address problems"
+      ReputationFail _ -> error "expected successful limit check, but got limit violation"
+      ValidationSuccess transferRequestCid1 -> transferRequestCid1
+  transfer <- transmit parties contracts transferRequestCid1 fee utxoCid
+  let
+    details = case transfer of
+      Right newTransfer -> newTransfer.transferDetails
+      Left insufficientTransferRequest -> insufficientTransferRequest.transferDetails
+  details.amount === satoshiAmount
 
 overrideFailedChecksAndTransmit = scenario do
-  let fee = Satoshi 1
-      satoshiAmount = satoshiLimit `plus` fee `plus` (Satoshi 1)
+  let
+    fee = Satoshi 1
+    satoshiAmount = satoshiLimit `plus` fee `plus` (Satoshi 1)
 
   (parties, contracts, _address, badAddress) <- onboarding
 
@@ -187,30 +189,33 @@ overrideFailedChecksAndTransmit = scenario do
 
   transferRequestResult <- parties.operator `submit` exercise uncheckedTransferRequestCid ValidateRequest
 
-  case transferRequestResult of
-    LimitFail failedRequestCid1 -> do
-      (limitOverride, _) <- parties.deskHead `submit` exercise contracts.deskHeadCid ApproveRequestOverLimits with
-        failedRequestCid = failedRequestCid1
-        reason = "Desk head overrides limit failure"
+  let
+    failedRequestCid1 = case transferRequestResult of
+      LimitFail failedRequestCid1 -> failedRequestCid1
+      ReputationFail _ ->
+        error "expected failure due to limit violation, but limit check successfully passed"
+      ValidationSuccess _ ->
+        error "expected failure due to limit and address violation, but both checks successfully passed"
+  (limitOverride, _) <- parties.deskHead `submit` exercise contracts.deskHeadCid ApproveRequestOverLimits with
+    failedRequestCid = failedRequestCid1
+    reason = "Desk head overrides limit failure"
+    observers = []
+  let
+    failedAddressCheckCid = case limitOverride of
+      Right _ ->
+        error "expected failure due to bad address, but address check successfully passed"
+      Left failedAddressCheckCid ->
+        failedAddressCheckCid
+  (addressOverride, _) <- parties.complianceOfficer `submit` exercise contracts.complCid ApproveRequestToBadAddress with
+        failedRequestCid = failedAddressCheckCid
+        reason = "Compliance officer trusts this address"
         observers = []
-      case limitOverride of
-        Right _ ->
-          fail "expected failure due to bad address, but address check successfully passed"
-        Left failedAddressCheckCid -> do
-          (addressOverride, _) <- parties.complianceOfficer `submit` exercise contracts.complCid ApproveRequestToBadAddress with
-            failedRequestCid = failedAddressCheckCid
-            reason = "Compliance officer trusts this address"
-            observers = []
-          transfer <- transmit parties contracts addressOverride fee utxoCid
-          let details =
-                case transfer of
-                  Right newTransfer -> newTransfer.transferDetails
-                  Left insufficientTransferRequest -> insufficientTransferRequest.transferDetails
-          details.amount === satoshiAmount
-    ReputationFail _ ->
-      fail "expected failure due to limit violation, but limit check successfully passed"
-    ValidationSuccess _ ->
-      fail "expected failure due to limit and address violation, but both checks successfully passed"
+  transfer <- transmit parties contracts addressOverride fee utxoCid
+  let
+    details = case transfer of
+      Right newTransfer -> newTransfer.transferDetails
+      Left insufficientTransferRequest -> insufficientTransferRequest.transferDetails
+  details.amount === satoshiAmount
 
 validTransferIncreasesLimitUsage = scenario do
   let fee = Satoshi 1
@@ -221,16 +226,17 @@ validTransferIncreasesLimitUsage = scenario do
 
   transferRequestResult <- parties.operator `submit` exercise transferRequestCid ValidateRequest
 
-  case transferRequestResult of
-    ValidationSuccess requestCid -> do
-      parties.operator `submit` exercise requestCid PrepareToTransfer with
-        signingPartyCid = contracts.signCid
-        fee = fee
-        availableTxInputCids = [utxoCid]
-      newLimit <- findNewLimit parties contracts
-      newLimit.used === goodAmount `plus` fee
-    LimitFail _ -> fail "expected transfer request to be valid, but failed limit check"
-    ReputationFail _ -> fail "expected transfer request to be valid, but failed address check"
+  let
+    requestCid = case transferRequestResult of
+      ValidationSuccess requestCid -> requestCid
+      LimitFail _ -> error "expected transfer request to be valid, but failed limit check"
+      ReputationFail _ -> error "expected transfer request to be valid, but failed address check"
+  parties.operator `submit` exercise requestCid PrepareToTransfer with
+    signingPartyCid = contracts.signCid
+    fee = fee
+    availableTxInputCids = [utxoCid]
+  newLimit <- findNewLimit parties contracts
+  newLimit.used === goodAmount `plus` fee
 
 overLimitTransferIncreasesLimitUsage = scenario do
   let fee = Satoshi 1
@@ -241,25 +247,25 @@ overLimitTransferIncreasesLimitUsage = scenario do
 
   transferRequestResult <- parties.operator `submit` exercise transferRequestCid ValidateRequest
 
-  case transferRequestResult of
-    LimitFail failedRequestCid -> do
-      (approvedRequestCid, _) <- parties.deskHead `submit` exercise contracts.deskHeadCid ApproveRequestOverLimits with
-        failedRequestCid = failedRequestCid
-        reason = "Desk head overrides limit failure"
-        observers = []
-      case approvedRequestCid of
-        Right validRequestCid -> do
-          parties.operator `submit` exercise validRequestCid PrepareToTransfer with
-            signingPartyCid = contracts.signCid
-            fee = fee
-            availableTxInputCids = [utxoCid]
-          newLimit <- findNewLimit parties contracts
-          newLimit.used === overLimitAmount `plus` fee
-        otherwise ->
-          fail "expected transfer request to be valid, but failed address check"
-    ValidationSuccess _ ->
-      fail "expected failure due to limit violation, but limit check successfully passed"
-    ReputationFail _ -> fail "expected transfer request to be valid, but failed address check"
+  let
+    failedRequestCid = case transferRequestResult of
+      LimitFail failedRequestCid -> failedRequestCid
+      ValidationSuccess _ -> error "expected failure due to limit violation, but limit check successfully passed"
+      ReputationFail _ -> error "expected transfer request to be valid, but failed address check"
+  (approvedRequestCid, _) <- parties.deskHead `submit` exercise contracts.deskHeadCid ApproveRequestOverLimits with
+    failedRequestCid = failedRequestCid
+    reason = "Desk head overrides limit failure"
+    observers = []
+  let
+    validRequestCid = case approvedRequestCid of
+      Right validRequestCid -> validRequestCid
+      otherwise -> error "expected transfer request to be valid, but failed address check"
+  parties.operator `submit` exercise validRequestCid PrepareToTransfer with
+    signingPartyCid = contracts.signCid
+    fee = fee
+    availableTxInputCids = [utxoCid]
+  newLimit <- findNewLimit parties contracts
+  newLimit.used === overLimitAmount `plus` fee
 
 badAddressTransferIncreasesLimitUsage = scenario do
   let fee = Satoshi 1
@@ -270,21 +276,22 @@ badAddressTransferIncreasesLimitUsage = scenario do
 
   transferRequestResult <- parties.operator `submit` exercise transferRequestCid ValidateRequest
 
-  case transferRequestResult of
-    ReputationFail failedRequestCid -> do
-      (approvedRequestCid, _) <- parties.complianceOfficer `submit` exercise contracts.complCid ApproveRequestToBadAddress with
-        failedRequestCid = failedRequestCid
-        reason = "Compliance officer trusts this address"
-        observers = []
-      parties.operator `submit` exercise approvedRequestCid PrepareToTransfer with
-        signingPartyCid = contracts.signCid
-        fee = fee
-        availableTxInputCids = [utxoCid]
-      newLimit <- findNewLimit parties contracts
-      newLimit.used === overLimitAmount `plus` fee
-    ValidationSuccess _ ->
-      fail "expected failure due to limit violation, but limit check successfully passed"
-    LimitFail _ -> fail "expected transfer request to be within limit, but limit check failed"
+  let
+    failedRequestCid = case transferRequestResult of
+      ReputationFail failedRequestCid -> failedRequestCid
+      ValidationSuccess _ ->
+        error "expected failure due to limit violation, but limit check successfully passed"
+      LimitFail _ -> error "expected transfer request to be within limit, but limit check failed"
+  (approvedRequestCid, _) <- parties.complianceOfficer `submit` exercise contracts.complCid ApproveRequestToBadAddress with
+    failedRequestCid = failedRequestCid
+    reason = "Compliance officer trusts this address"
+    observers = []
+  parties.operator `submit` exercise approvedRequestCid PrepareToTransfer with
+    signingPartyCid = contracts.signCid
+    fee = fee
+    availableTxInputCids = [utxoCid]
+  newLimit <- findNewLimit parties contracts
+  newLimit.used === overLimitAmount `plus` fee
 
 findNewLimit : ScenarioPartiesHelper -> ScenarioContractsHelper -> Scenario TransferLimit
 findNewLimit parties contracts = scenario do
