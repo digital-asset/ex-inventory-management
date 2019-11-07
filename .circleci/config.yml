@@ -67,9 +67,12 @@ jobs:
             - ~/.daml
           key: m2-{{ checksum "pom.xml" }}-{{ checksum "daml.yaml" }}
       - run:
-          name: Run Blackduck Detect
+          name: Maven Build
           command: |
             mvn clean package
+      - run:
+          name: Run Blackduck Detect
+          command: |
             bash <(curl -s https://raw.githubusercontent.com/DACH-NY/security-blackduck/master/synopsys-detect) ci-build digitalasset_ex-inventory-management master --logging.level.com.synopsys.integration=DEBUG --detect.notices.report=true --detect.report.timeout=480
       - run:
           command: cp digitalasset_ex_inventory_management_master_Black_Duck_Notices_Report.txt NOTICE
