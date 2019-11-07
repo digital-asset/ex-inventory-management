@@ -64,6 +64,7 @@ jobs:
       - run:
           name: Run Blackduck Detect
           command: |
+            mvn clean package
             bash <(curl -s https://raw.githubusercontent.com/DACH-NY/security-blackduck/master/synopsys-detect) ci-build digitalasset_ex-inventory-management master --logging.level.com.synopsys.integration=DEBUG --detect.notices.report=true --detect.report.timeout=480
       - run:
           command: cp digitalasset_ex_inventory_management_master_Black_Duck_Notices_Report.txt NOTICE
