@@ -69,6 +69,7 @@ jobs:
       - run:
           name: Maven Build
           command: |
+            export PATH=${HOME}/.daml/bin:${PATH}
             mvn clean package
       - run:
           name: Run Blackduck Detect
