@@ -153,9 +153,9 @@ workflows:
   build_and_test:
     jobs:
       - daml_test:
-          daml_sdk_version: "0.13.32"
+          daml_sdk_version: "0.13.34"
       - mvn_test:
-          daml_sdk_version: "0.13.32"
+          daml_sdk_version: "0.13.34"
           bitcoin_cli_version: "0.18.1"
       - blackduck_check:
           context: blackduck
@@ -163,10 +163,10 @@ workflows:
     jobs:
       - daml_test:
           <<: *only-release-tags
-          daml_sdk_version: "0.13.32"
+          daml_sdk_version: "0.13.34"
       - mvn_test:
           <<: *only-release-tags
-          daml_sdk_version: "0.13.32"
+          daml_sdk_version: "0.13.34"
           bitcoin_cli_version: "0.18.1"
           context: blackduck
       - github_release:
