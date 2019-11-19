@@ -4,11 +4,6 @@
 
 Crypto Inventory Management System (IMS) has been designed to make it easy and safe for crypto funds to manage their crypto assets on public ledgers (such as the Bitcoin network). It is one component of a potential future crypto-trading ecosystem augmented with custom compliance rules.
 
-### Features
-
-- **Automated DAML workflow** It has multiple configurable checkpoints, including transfer limits, whitelisted addresses, and blacklisted addresses.
-- **Segregation of Signing Party** The Signing Party is a designated role to keep private keys and sign transfers safely. No other party in the workflow has access to private keys. The only processes with access to private keys are bots acting on behalf of the Signing Party. In a production environment, they could run on a separate server with no direct access to the internet or even be delegated to an agent outside the trading house. Private keys are kept in the file system to keep it simple, however, they could also be guarded with more sophisticated mechanisms. Managing the Signing Party and private keys for a trading house is a core business value proposition for a crypto custodian business.
-
 ## Getting Started
 
 ### Installing
@@ -95,6 +90,12 @@ Reset the application by following these steps:
 This User Guide will take you step-by-step through the process of requesting and transmitting bitcoin transfer. It will lead you through all the major Navigator screens and data fields that you will need to use.
 
 After working through these steps, you can use the Navigator interface to explore other functionality that is available in the application.
+
+### Features
+
+- **Automated DAML workflow** It has multiple configurable checkpoints, including transfer limits, whitelisted addresses, and blacklisted addresses.
+- **Segregation of Signing Party** The Signing Party is a designated role to keep private keys and sign transfers safely. No other party in the workflow has access to private keys. The only processes with access to private keys are bots acting on behalf of the Signing Party. In a production environment, they could run on a separate server with no direct access to the internet or even be delegated to an agent outside the trading house. Private keys are kept in the file system to keep it simple, however, they could also be guarded with more sophisticated mechanisms. Managing the Signing Party and private keys for a trading house is a core business value proposition for a crypto custodian business.
+
 
 **Note**: This demo is designed to show successful conclusion of the IMS workflow without exceptions or error conditions. A full production implementation would include additional features, handle errors and exceptions, and incorporate appropriate security controls.
 
