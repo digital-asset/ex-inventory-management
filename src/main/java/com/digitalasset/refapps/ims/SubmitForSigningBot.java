@@ -12,8 +12,8 @@ import com.daml.ledger.javaapi.data.*;
 import com.daml.ledger.rxjava.components.LedgerViewFlowable;
 import com.daml.ledger.rxjava.components.helpers.CommandsAndPendingSet;
 import com.daml.ledger.rxjava.components.helpers.CreatedContract;
+import com.daml.ledger.rxjava.components.helpers.TemplateUtils;
 import com.digitalasset.refapps.ims.util.CommandsAndPendingSetBuilder;
-import com.digitalasset.refapps.ims.util.TemplateUtils;
 import com.google.common.collect.Sets;
 import io.reactivex.Flowable;
 import java.util.*;
@@ -73,7 +73,7 @@ public class SubmitForSigningBot {
   }
 
   public static Function<CreatedContract, Template> getContractInfo =
-      TemplateUtils.contractTransformator(
+      TemplateUtils.contractTransformer(
           ValidatedTransferRequest.class, SigningPartyRole.class, UTXO.class);
 
   private static SigningPartyRole.ContractId getSigningParty(
