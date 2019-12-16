@@ -42,9 +42,8 @@ public class Main {
 
     CliOptions cliOptions = CliOptions.parseArgs(args);
 
-    DamlLedgerClient client =
-        DamlLedgerClient.forHostWithLedgerIdDiscovery(
-            cliOptions.getSandboxHost(), cliOptions.getSandboxPort(), Optional.empty());
+    DamlLedgerClient.Builder builder = DamlLedgerClient.newBuilder(cliOptions.getSandboxHost(), cliOptions.getSandboxPort());
+    DamlLedgerClient client = builder.build();
 
     waitForSandbox(cliOptions.getSandboxHost(), cliOptions.getSandboxPort(), client);
 
