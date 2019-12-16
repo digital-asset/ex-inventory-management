@@ -125,8 +125,6 @@ public class InventoryManagementIT {
 
   private void initLedger() throws Exception {
     ledgerAdapter = sandbox.getLedgerAdapter();
-    // TODO(TK): Seems to have timing issues.
-    Thread.sleep(5000);
 
     // fetch an operator role
     operatorRoleCid =

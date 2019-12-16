@@ -12,8 +12,8 @@ import com.daml.ledger.javaapi.data.*;
 import com.daml.ledger.rxjava.components.LedgerViewFlowable;
 import com.daml.ledger.rxjava.components.helpers.CommandsAndPendingSet;
 import com.daml.ledger.rxjava.components.helpers.CreatedContract;
+import com.daml.ledger.rxjava.components.helpers.TemplateUtils;
 import com.digitalasset.refapps.ims.util.CommandsAndPendingSetBuilder;
-import com.digitalasset.refapps.ims.util.TemplateUtils;
 import com.google.common.collect.Sets;
 import fr.acinq.bitcoin.Crypto;
 import io.reactivex.Flowable;
@@ -71,5 +71,5 @@ public class OwnedAddressRegistrarBot {
   }
 
   public static Function<CreatedContract, Template> getContractInfo =
-      TemplateUtils.contractTransformator(SigningPartyRole.class, OwnedAddress.class);
+      TemplateUtils.contractTransformer(SigningPartyRole.class, OwnedAddress.class);
 }

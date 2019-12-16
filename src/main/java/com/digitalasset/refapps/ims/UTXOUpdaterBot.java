@@ -13,10 +13,10 @@ import com.daml.ledger.javaapi.data.*;
 import com.daml.ledger.rxjava.components.LedgerViewFlowable;
 import com.daml.ledger.rxjava.components.helpers.CommandsAndPendingSet;
 import com.daml.ledger.rxjava.components.helpers.CreatedContract;
+import com.daml.ledger.rxjava.components.helpers.TemplateUtils;
 import com.digitalasset.refapps.ims.bitcoin.BTCService;
 import com.digitalasset.refapps.ims.bitcoin.TxRef;
 import com.digitalasset.refapps.ims.util.CommandsAndPendingSetBuilder;
-import com.digitalasset.refapps.ims.util.TemplateUtils;
 import com.digitalasset.refapps.ims.util.Utility;
 import com.google.common.collect.Sets;
 import io.reactivex.Flowable;
@@ -123,7 +123,7 @@ public class UTXOUpdaterBot {
   }
 
   public static Function<CreatedContract, Template> getContractInfo =
-      TemplateUtils.contractTransformator(
+      TemplateUtils.contractTransformer(
           OnboardEntityMaster.class, OwnedAddress.class, UTXOUpdateRequest.class, UTXO.class);
 
   private static String format(UTXOData utxoData) {
