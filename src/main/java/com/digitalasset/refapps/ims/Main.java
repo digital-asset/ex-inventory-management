@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +41,8 @@ public class Main {
 
     CliOptions cliOptions = CliOptions.parseArgs(args);
 
-    DamlLedgerClient.Builder builder = DamlLedgerClient.newBuilder(cliOptions.getSandboxHost(), cliOptions.getSandboxPort());
+    DamlLedgerClient.Builder builder =
+        DamlLedgerClient.newBuilder(cliOptions.getSandboxHost(), cliOptions.getSandboxPort());
     DamlLedgerClient client = builder.build();
 
     waitForSandbox(cliOptions.getSandboxHost(), cliOptions.getSandboxPort(), client);
