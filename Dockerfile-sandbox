@@ -17,4 +17,4 @@ USER daml
 
 EXPOSE 6865
 
-CMD ~/.daml/bin/daml sandbox -- --port 6865 --scenario Test.Test:onboarding inventory-management.dar
+CMD ~/.daml/bin/daml sandbox -- --address 0.0.0.0 --port 6865 --scenario Test.Test:onboarding inventory-management.dar
