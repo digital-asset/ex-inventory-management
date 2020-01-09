@@ -10,7 +10,6 @@ WORKDIR /home/daml
 
 COPY target/inventory-management.dar /home/daml/
 
-# Need root use to set appropriate ownership of DAR file.
 USER root
 RUN chown daml inventory-management.dar
 USER daml
