@@ -96,6 +96,12 @@ onboarding = scenario do
   ownedAddressCid2 <- complianceOfficer `submit` exercise complCid AddObserverToAddress with newObserver = trader1; addressCid = ownedAddressCid2
   badAddressCid <- complianceOfficer `submit` exercise complCid AddObserverToAddress with newObserver = trader1; addressCid = badAddressCid
 
+  -- Add desk head as observers to company owned address
+  addressCid <- complianceOfficer `submit` exercise complCid AddObserverToAddress with newObserver = deskHead, addressCid = addressCid
+  ownedAddressCid1 <- complianceOfficer `submit` exercise complCid AddObserverToAddress with newObserver = deskHead, addressCid = ownedAddressCid1
+  ownedAddressCid2 <- complianceOfficer `submit` exercise complCid AddObserverToAddress with newObserver = deskHead, addressCid = ownedAddressCid2
+  badAddressCid <- complianceOfficer `submit` exercise complCid AddObserverToAddress with newObserver = deskHead, addressCid = badAddressCid
+
   -- Issue Desk Limits
   limitCid <- deskHead `submit` exercise deskHeadCid IssueTransferLimit with dayLimit = satoshiLimit
   
