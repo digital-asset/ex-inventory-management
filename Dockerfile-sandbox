@@ -2,7 +2,7 @@
 # Copyright (c) 2019, Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 #
 
-ARG sdk_vsn=0.13.40
+ARG sdk_vsn=0.13.42
 
 FROM digitalasset/daml-sdk:${sdk_vsn}
 
@@ -10,11 +10,10 @@ WORKDIR /home/daml
 
 COPY target/inventory-management.dar /home/daml/
 
-# Need root use to set appropriate ownership of DAR file.
 USER root
 RUN chown daml inventory-management.dar
 USER daml
 
 EXPOSE 6865
 
-CMD ~/.daml/bin/daml sandbox -- --port 6865 --scenario Test.Test:onboarding inventory-management.dar
+CMD ~/.daml/bin/daml sandbox -- --address 0.0.0.0 --port 6865 --scenario Test.Test:onboarding inventory-management.dar
