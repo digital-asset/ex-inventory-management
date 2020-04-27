@@ -1,0 +1,90 @@
+--
+-- Copyright (c) 2019, Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+--
+
+daml 1.2
+
+module Test.OnboardingScript where
+
+import Prelude hiding (getParty)
+import Daml.Script
+import Actors.Compliance
+import Actors.DeskHead
+import Actors.Operator
+import Actors.SigningParty
+import Actors.Trader
+import Bitcoin.Types
+import Transfer.Address
+
+satoshiLimit : Satoshi
+satoshiLimit = Satoshi 100_000_000
+
+onboarding : Script ()
+onboarding = do
+  operator <- getParty "Operator"
+  trader1 <- getParty "Trader1"
+  trader2 <- getParty "Trader2"
+  deskHead <- getParty "DeskHead"
+  signingParty <- getParty "SigningParty"
+  complianceOfficer <- getParty "ComplianceOfficer"
+
+  let deskName = "Crypto Asset Management Group"
+  let address = BitcoinAddress "muDrC4zKYrp2563QefqhZZ2ymWh2iVYa6F"
+  let ownedAddress1 = BitcoinAddress "mogSS38Q48CUS5kLXc6z6CzjampdeTd2Q8"
+  let ownedAddress2 = BitcoinAddress "mmgZZMGKRAM9C8ySTnwrWaGwYwgdidEhWe"
+  let badAddress1 = BitcoinAddress "1Py3BhtZcYX7vcEuSxKWoTKaitkjLwZC1n"
+
+  -- Genesis Contract
+  oemCid <- submit operator $ createCmd OnboardEntityMaster with operator
+
+  -- Onboard Compliance
+  complInvCid <- operator `submit` exerciseCmd oemCid InviteCompliance with complianceOfficer
+  complCid <- complianceOfficer `submit` exerciseCmd complInvCid AcceptComplianceInvitation
+
+  -- Onboard Signing Party
+  signInvCid <- operator `submit` exerciseCmd oemCid InviteSigningParty with signingParty
+  signCid <- signingParty `submit` exerciseCmd signInvCid AcceptSigningPartyInvitation
+
+  -- Onboard Desk
+  deskInvCid <- operator `submit` exerciseCmd complCid InviteDeskHead with deskHead; deskName
+  deskRes <- deskHead `submit` exerciseCmd deskInvCid AcceptDeskInvitation
+  let deskCid = fst deskRes
+  let deskHeadCid = snd deskRes
+
+  -- Register Addresses
+  addressCid <- complianceOfficer `submit` exerciseCmd complCid RegisterNewAddress with address; reputation = Good; tag = "This is a good address. Believe me."
+  ownedAddressCid1 <- complianceOfficer `submit` exerciseCmd complCid RegisterNewAddress with address = ownedAddress1; reputation = Good; tag = "My fellow counterparty"
+  ownedAddressCid2 <- complianceOfficer `submit` exerciseCmd complCid RegisterNewAddress with address = ownedAddress2; reputation = Good; tag = "Some other trading house"
+  badAddressCid <- complianceOfficer `submit` exerciseCmd complCid RegisterNewAddress with address = badAddress1; reputation = Bad; tag = "Bad! Avoid at all cost!"
+
+  -- Onbard Traders to Desk
+  trdrInvCid <- deskHead `submit` exerciseCmd deskHeadCid AddTraderToDesk with trader = trader1; deskCid
+  trdrRes <- trader1 `submit` exerciseCmd trdrInvCid AcceptTraderInvitation
+  let trdr1Cid = fst trdrRes
+  let deskCid2 = snd trdrRes
+  trdrInvCid <- deskHead `submit` exerciseCmd deskHeadCid AddTraderToDesk with trader = trader2; deskCid = deskCid2
+  trdrRes <- trader2 `submit` exerciseCmd trdrInvCid AcceptTraderInvitation
+  let trdr2Cid = fst trdrRes
+  let deskCid = snd trdrRes
+
+  -- Add traders as observers to company owned address
+  addressCid <- complianceOfficer `submit` exerciseCmd complCid AddObserverToAddress with newObserver = trader1; addressCid = addressCid
+  ownedAddressCid1 <- complianceOfficer `submit` exerciseCmd complCid AddObserverToAddress with newObserver = trader1; addressCid = ownedAddressCid1
+  ownedAddressCid2 <- complianceOfficer `submit` exerciseCmd complCid AddObserverToAddress with newObserver = trader1; addressCid = ownedAddressCid2
+  badAddressCid <- complianceOfficer `submit` exerciseCmd complCid AddObserverToAddress with newObserver = trader1; addressCid = badAddressCid
+
+  -- Add desk head as observers to company owned address
+  complianceOfficer `submit` exerciseCmd complCid AddObserverToAddress with newObserver = deskHead, addressCid = addressCid
+  complianceOfficer `submit` exerciseCmd complCid AddObserverToAddress with newObserver = deskHead, addressCid = ownedAddressCid1
+  complianceOfficer `submit` exerciseCmd complCid AddObserverToAddress with newObserver = deskHead, addressCid = ownedAddressCid2
+  complianceOfficer `submit` exerciseCmd complCid AddObserverToAddress with newObserver = deskHead, addressCid = badAddressCid
+
+  -- Issue Desk Limits
+  deskHead `submit` exerciseCmd deskHeadCid IssueTransferLimit with dayLimit = satoshiLimit
+
+  return ()
+
+-- | Same as `getParty` scenarios but for DAML Scripts.
+getParty: Text -> Script Party
+getParty name = allocatePartyWithHint name (PartyIdHint name)

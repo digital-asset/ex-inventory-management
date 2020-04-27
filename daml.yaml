@@ -5,7 +5,7 @@
 
 sdk-version: 1.0.0
 name: inventory-management
-source: src/main/daml/Test/Test.daml
+source: src/main/daml/
 scenario: Test.Test:onboarding
 parties:
   - Operator
@@ -19,3 +19,4 @@ exposed-modules: []
 dependencies:
   - daml-prim
   - daml-stdlib
+  - daml-script

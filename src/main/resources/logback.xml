@@ -19,7 +19,7 @@
             <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
         </encoder>
     </appender>
-    <logger name="com.digitalasset.refapps" level="debug" />
+    <logger name="com.digitalasset.refapps" level="info" />
     <root level="info">
         <appender-ref ref="FILE" />
         <appender-ref ref="STDOUT" />
