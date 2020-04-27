@@ -6,7 +6,7 @@
 sdk-version: 1.0.0
 name: inventory-management
 source: src/main/daml/
-scenario: Test.Test:onboarding
+init-script: Test.OnboardingScript:onboarding
 parties:
   - Operator
   - Trader1
