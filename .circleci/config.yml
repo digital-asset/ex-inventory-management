@@ -113,6 +113,18 @@ jobs:
           path: target/surefire-reports
       - store_artifacts:
           path: target/surefire-reports
+      - store_test_results:
+          path: target/failsafe-reports
+      - store_artifacts:
+          path: target/failsafe-reports
+      - run:
+          command: |
+            echo "Moving log files so they can be stored."
+            mkdir logs
+            mv *.log logs
+          when: always
+      - store_artifacts:
+          path: logs
       - persist_to_workspace:
           root: target
           paths:
