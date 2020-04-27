@@ -63,7 +63,7 @@ public class InventoryManagementIT {
       Sandbox.builder()
           .dar(RELATIVE_DAR_PATH)
           .module(TEST_MODULE)
-          .scenario(TEST_SCENARIO)
+          .startScript(TEST_SCENARIO)
           .parties(
               OPERATOR_PARTY.getValue(),
               SIGNINGPARTY_PARTY.getValue(),

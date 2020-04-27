@@ -2,7 +2,7 @@
 # Copyright (c) 2019, Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 #
 
-ARG sdk_vsn=0.13.55
+ARG sdk_vsn=1.0.0
 
 FROM digitalasset/daml-sdk:${sdk_vsn}
 

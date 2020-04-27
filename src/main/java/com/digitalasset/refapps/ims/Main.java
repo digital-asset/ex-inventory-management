@@ -65,7 +65,7 @@ public class Main {
 
     Duration mrt = Duration.ofSeconds(10);
     CommandsAndPendingSetBuilder.Factory commandBuilderFactory =
-        CommandsAndPendingSetBuilder.factory(APP_ID, clock::get, mrt);
+        CommandsAndPendingSetBuilder.factory(APP_ID, mrt);
 
     // private keys for signing bots
     Map<BitcoinAddress, Crypto.PrivateKey> addressToPrivateKeyMap =

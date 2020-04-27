@@ -31,43 +31,38 @@ import org.pcollections.PSet;
  */
 public class CommandsAndPendingSetBuilder {
   public static Factory factory(
-      String applicationId, Supplier<Clock> clockSupplier, Duration mrtDuration) {
-    return new Factory(applicationId, clockSupplier, mrtDuration);
+      String applicationId, Duration mrtDuration) {
+    return new Factory(applicationId, mrtDuration);
   }
 
   public static class Factory {
     private final String applicationId;
-    private final Supplier<Clock> clockSupplier;
     private Duration mrtDuration;
 
-    public Factory(String applicationId, Supplier<Clock> clockSupplier, Duration mrtDuration) {
+    public Factory(String applicationId, Duration mrtDuration) {
       this.applicationId = applicationId;
-      this.clockSupplier = clockSupplier;
       this.mrtDuration = mrtDuration;
     }
 
     public CommandsAndPendingSetBuilder create(String party, String workflowId) {
       return new CommandsAndPendingSetBuilder(
-          applicationId, party, workflowId, clockSupplier, mrtDuration);
+          applicationId, party, workflowId, mrtDuration);
     }
   }
 
   private final String appId;
   private final String party;
   private final String workflowId;
-  private final Supplier<Clock> clockSupplier;
   private final Duration mrtDuration;
 
   CommandsAndPendingSetBuilder(
       String appId,
       String party,
       String workflowId,
-      Supplier<Clock> clockSupplier,
       Duration mrtDuration) {
     this.appId = appId;
     this.party = party;
     this.workflowId = workflowId;
-    this.clockSupplier = clockSupplier;
     this.mrtDuration = mrtDuration;
   }
 
@@ -96,11 +91,9 @@ public class CommandsAndPendingSetBuilder {
       if (commands.isEmpty() && pendingContractIds.isEmpty()) {
         return Optional.empty();
       } else {
-        Instant now = clockSupplier.get().instant();
-        Instant mrt = now.plus(mrtDuration);
         SubmitCommandsRequest commandsRequest =
             new SubmitCommandsRequest(
-                workflowId, appId, UUID.randomUUID().toString(), party, now, mrt, commands);
+                workflowId, appId, UUID.randomUUID().toString(), party, Optional.empty(), Optional.of(mrtDuration), Optional.empty(), commands);
         return Optional.of(
             new CommandsAndPendingSet(commandsRequest, HashTreePMap.from(pendingContractIds)));
       }
