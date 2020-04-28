@@ -27,8 +27,7 @@ import org.pcollections.PSet;
  * contract set. This builder simplifies that task.
  */
 public class CommandsAndPendingSetBuilder {
-  public static Factory factory(
-      String applicationId, Duration mrtDuration) {
+  public static Factory factory(String applicationId, Duration mrtDuration) {
     return new Factory(applicationId, mrtDuration);
   }
 
@@ -42,8 +41,7 @@ public class CommandsAndPendingSetBuilder {
     }
 
     public CommandsAndPendingSetBuilder create(String party, String workflowId) {
-      return new CommandsAndPendingSetBuilder(
-          applicationId, party, workflowId, mrtDuration);
+      return new CommandsAndPendingSetBuilder(applicationId, party, workflowId, mrtDuration);
     }
   }
 
@@ -53,10 +51,7 @@ public class CommandsAndPendingSetBuilder {
   private final Duration mrtDuration;
 
   CommandsAndPendingSetBuilder(
-      String appId,
-      String party,
-      String workflowId,
-      Duration mrtDuration) {
+      String appId, String party, String workflowId, Duration mrtDuration) {
     this.appId = appId;
     this.party = party;
     this.workflowId = workflowId;
@@ -90,7 +85,14 @@ public class CommandsAndPendingSetBuilder {
       } else {
         SubmitCommandsRequest commandsRequest =
             new SubmitCommandsRequest(
-                workflowId, appId, UUID.randomUUID().toString(), party, Optional.empty(), Optional.of(mrtDuration), Optional.empty(), commands);
+                workflowId,
+                appId,
+                UUID.randomUUID().toString(),
+                party,
+                Optional.empty(),
+                Optional.of(mrtDuration),
+                Optional.empty(),
+                commands);
         return Optional.of(
             new CommandsAndPendingSet(commandsRequest, HashTreePMap.from(pendingContractIds)));
       }
