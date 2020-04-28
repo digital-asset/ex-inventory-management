@@ -179,7 +179,7 @@ workflows:
       - mvn_test:
           daml_sdk_version: "1.0.1"
           bitcoin_cli_version: "0.18.1"
-          context: blackduck
+          context: refapps
       - blackduck_check:
           daml_sdk_version: "1.0.1"
           context: blackduck
