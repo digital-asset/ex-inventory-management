@@ -12,18 +12,7 @@ services:
       dockerfile: Dockerfile-sandbox
     ports:
       - "127.0.0.1:6865:6865"
-  ex-inventory-management-navigator:
-    image: digitalasset/ex-inventory-management-navigator:0.0.1
-    build:
-      context: .
-      dockerfile: Dockerfile-navigator
-    depends_on:
-      - "ex-inventory-management-sandbox"
-    ports:
       - "127.0.0.1:7500:7500"
-    environment:
-      - SANDBOX_HOST=ex-inventory-management-sandbox
-      - SANDBOX_PORT=6865
   ex-inventory-management-bitcoin:
       image: digitalasset/ex-inventory-management-bitcoin:0.0.1
       build:
