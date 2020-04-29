@@ -22,4 +22,5 @@ ENTRYPOINT ~/.daml/bin/daml start \
 # Cannot explicitly specify, because of a `daml start` bug.
 # Relying on default port behaviour as of now.
 #  --navigator-option="--port=7500" \
+  --open-browser=no \
   --json-api-port=none
