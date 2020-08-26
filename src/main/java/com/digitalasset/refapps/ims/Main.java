@@ -55,13 +55,6 @@ public class Main {
   }
 
   public static void run(DamlLedgerClient client, CliOptions cliOptions) throws IOException {
-    // We create a Flowable<Instant> clockFlowable to set the time
-    client
-        .getTimeClient()
-        .getTime()
-        .doOnNext(ts -> logger.info("Received time change {}", ts))
-        .doOnNext(ts -> clock.set(Clock.fixed(ts, ZoneId.systemDefault())))
-        .subscribe();
 
     Duration mrt = Duration.ofSeconds(10);
     CommandsAndPendingSetBuilder.Factory commandBuilderFactory =
