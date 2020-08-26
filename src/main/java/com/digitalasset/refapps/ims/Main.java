@@ -14,12 +14,8 @@ import com.digitalasset.refapps.ims.util.CliOptions;
 import com.digitalasset.refapps.ims.util.CommandsAndPendingSetBuilder;
 import fr.acinq.bitcoin.Crypto;
 import java.io.IOException;
-import java.time.Clock;
 import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +29,6 @@ public class Main {
   // constants for referring to the parties
   public static final String OPERATOR = "Operator";
   public static final String SIGNING_PARTY = "SigningParty";
-
-  private static final AtomicReference<Clock> clock =
-      new AtomicReference<>(Clock.fixed(Instant.ofEpochSecond(0), ZoneId.systemDefault()));
 
   public static void main(String[] args) throws InterruptedException, IOException {
 
@@ -55,13 +48,6 @@ public class Main {
   }
 
   public static void run(DamlLedgerClient client, CliOptions cliOptions) throws IOException {
-    // We create a Flowable<Instant> clockFlowable to set the time
-    client
-        .getTimeClient()
-        .getTime()
-        .doOnNext(ts -> logger.info("Received time change {}", ts))
-        .doOnNext(ts -> clock.set(Clock.fixed(ts, ZoneId.systemDefault())))
-        .subscribe();
 
     Duration mrt = Duration.ofSeconds(10);
     CommandsAndPendingSetBuilder.Factory commandBuilderFactory =
