@@ -14,12 +14,8 @@ import com.digitalasset.refapps.ims.util.CliOptions;
 import com.digitalasset.refapps.ims.util.CommandsAndPendingSetBuilder;
 import fr.acinq.bitcoin.Crypto;
 import java.io.IOException;
-import java.time.Clock;
 import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
