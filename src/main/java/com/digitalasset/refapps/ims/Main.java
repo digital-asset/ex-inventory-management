@@ -34,9 +34,6 @@ public class Main {
   public static final String OPERATOR = "Operator";
   public static final String SIGNING_PARTY = "SigningParty";
 
-  private static final AtomicReference<Clock> clock =
-      new AtomicReference<>(Clock.fixed(Instant.ofEpochSecond(0), ZoneId.systemDefault()));
-
   public static void main(String[] args) throws InterruptedException, IOException {
 
     CliOptions cliOptions = CliOptions.parseArgs(args);
