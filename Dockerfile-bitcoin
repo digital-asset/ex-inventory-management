@@ -2,13 +2,10 @@
 # Copyright (c) 2019, Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 #
 
-FROM ubuntu:14.04
+FROM ubuntu:20.04
 
-RUN apt-get update && \
-	apt-get install --yes software-properties-common && \
-	add-apt-repository --yes ppa:bitcoin/bitcoin && \
-	apt-get update && \
-	apt-get install --yes bitcoind make
+RUN apt-get update ||	apt-get update
+RUN apt-get install --yes make curl
 
 RUN adduser --disabled-login --gecos "" btcuser
 
@@ -21,7 +18,10 @@ RUN chown -R btcuser:btcuser /home/btcuser/btcData
 
 USER btcuser
 
+COPY --chown=btcuser scripts/install-bitcoin.sh /tmp/install-bitcoin.sh
+RUN /tmp/install-bitcoin.sh 0.18.1
+
 WORKDIR /home/btcuser/btcData
 
 EXPOSE 19091
-CMD ["bitcoind","-datadir=/home/btcuser/btcData"]
+CMD ["/home/btcuser/.bitcoin/bitcoin-0.18.1/bin/bitcoind","-datadir=/home/btcuser/btcData"]
