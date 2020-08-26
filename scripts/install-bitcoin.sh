@@ -9,6 +9,8 @@ BitcoinUrl="https://bitcoin.org/bin/bitcoin-core-$BitcoinVersion/bitcoin-$Bitcoi
 Binaries="${HOME:?}/.bitcoin"
 BinariesTar="/var/tmp/bitcoin_binaries.tar.gz"
 
+set -e
+
 download_url() {
   case $OSTYPE in
   darwin*)
