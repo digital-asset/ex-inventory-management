@@ -3,13 +3,14 @@
 -- SPDX-License-Identifier: Apache-2.0
 --
 
-daml 1.2
+{-# LANGUAGE ApplicativeDo #-}
 
 module Test.Test where
 
-import DA.Assert 
+import DA.Assert
 import DA.Date
 import DA.Time
+import Daml.Script
 import Actors.Compliance
 import Actors.DeskHead
 import Actors.Operator
@@ -20,101 +21,13 @@ import Desk.Limit
 import Transfer.Address
 import Transfer.Request
 import Transfer.Transfer
+import Test.OnboardingScript
 
-satoshiLimit : Satoshi
-satoshiLimit = Satoshi 100_000_000
-
-data ScenarioPartiesHelper = ScenarioPartiesHelper with
-  operator : Party
-  trader : Party
-  deskHead : Party
-  signingParty : Party
-  complianceOfficer: Party
-
-
-data ScenarioContractsHelper = ScenarioContractsHelper with 
-  oemCid: ContractId OnboardEntityMaster
-  complCid: ContractId ComplianceRole
-  signCid: ContractId SigningPartyRole
-  deskHeadCid: ContractId DeskHeadRole
-  traderCid: ContractId TraderRole
-  limitCid: ContractId TransferLimit
-  addressCid: ContractId DestinationAddress
-  badAddressCid: ContractId DestinationAddress
-
-onboarding = scenario do
-
-  operator <- getParty "Operator"
-  trader1 <- getParty "Trader1"
-  trader2 <- getParty "Trader2"
-  deskHead <- getParty "DeskHead"
-  signingParty <- getParty "SigningParty"
-  complianceOfficer <- getParty "ComplianceOfficer"
-
-  let deskName = "Crypto Asset Management Group"
-  let address = BitcoinAddress "muDrC4zKYrp2563QefqhZZ2ymWh2iVYa6F"
-  let ownedAddress1 = BitcoinAddress "mogSS38Q48CUS5kLXc6z6CzjampdeTd2Q8"
-  let ownedAddress2 = BitcoinAddress "mmgZZMGKRAM9C8ySTnwrWaGwYwgdidEhWe"
-  let badAddress1 = BitcoinAddress "1Py3BhtZcYX7vcEuSxKWoTKaitkjLwZC1n"
-
-  -- Genesis Contract
-  oemCid <- submit operator $ create OnboardEntityMaster with operator
-
-  -- Onboard Compliance
-  complInvCid <- operator `submit` exercise oemCid InviteCompliance with complianceOfficer
-  complCid <- complianceOfficer `submit` exercise complInvCid AcceptComplianceInvitation
-
-  -- Onboard Signing Party
-  signInvCid <- operator `submit` exercise oemCid InviteSigningParty with signingParty
-  signCid <- signingParty `submit` exercise signInvCid AcceptSigningPartyInvitation
-
-  -- Onboard Desk
-  deskInvCid <- operator `submit` exercise complCid InviteDeskHead with deskHead; deskName
-  deskRes <- deskHead `submit` exercise deskInvCid AcceptDeskInvitation
-  let deskCid = fst deskRes
-  let deskHeadCid = snd deskRes
-
-  -- Register Addresses
-  addressCid <- complianceOfficer `submit` exercise complCid RegisterNewAddress with address; reputation = Good; tag = "This is a good address. Believe me."
-  ownedAddressCid1 <- complianceOfficer `submit` exercise complCid RegisterNewAddress with address = ownedAddress1; reputation = Good; tag = "My fellow counterparty"
-  ownedAddressCid2 <- complianceOfficer `submit` exercise complCid RegisterNewAddress with address = ownedAddress2; reputation = Good; tag = "Some other trading house"
-  badAddressCid <- complianceOfficer `submit` exercise complCid RegisterNewAddress with address = badAddress1; reputation = Bad; tag = "Bad! Avoid at all cost!"
-
-  -- Onbard Traders to Desk
-  trdrInvCid <- deskHead `submit` exercise deskHeadCid AddTraderToDesk with trader = trader1; deskCid
-  trdrRes <- trader1 `submit` exercise trdrInvCid AcceptTraderInvitation
-  let trdr1Cid = fst trdrRes
-  let deskCid2 = snd trdrRes
-  trdrInvCid <- deskHead `submit` exercise deskHeadCid AddTraderToDesk with trader = trader2; deskCid = deskCid2
-  trdrRes <- trader2 `submit` exercise trdrInvCid AcceptTraderInvitation
-  let trdr2Cid = fst trdrRes
-  let deskCid = snd trdrRes
-
-  -- Add traders as observers to company owned address
-  addressCid <- complianceOfficer `submit` exercise complCid AddObserverToAddress with newObserver = trader1; addressCid = addressCid
-  ownedAddressCid1 <- complianceOfficer `submit` exercise complCid AddObserverToAddress with newObserver = trader1; addressCid = ownedAddressCid1
-  ownedAddressCid2 <- complianceOfficer `submit` exercise complCid AddObserverToAddress with newObserver = trader1; addressCid = ownedAddressCid2
-  badAddressCid <- complianceOfficer `submit` exercise complCid AddObserverToAddress with newObserver = trader1; addressCid = badAddressCid
-
-  -- Add desk head as observers to company owned address
-  addressCid <- complianceOfficer `submit` exercise complCid AddObserverToAddress with newObserver = deskHead, addressCid = addressCid
-  ownedAddressCid1 <- complianceOfficer `submit` exercise complCid AddObserverToAddress with newObserver = deskHead, addressCid = ownedAddressCid1
-  ownedAddressCid2 <- complianceOfficer `submit` exercise complCid AddObserverToAddress with newObserver = deskHead, addressCid = ownedAddressCid2
-  badAddressCid <- complianceOfficer `submit` exercise complCid AddObserverToAddress with newObserver = deskHead, addressCid = badAddressCid
-
-  -- Issue Desk Limits
-  limitCid <- deskHead `submit` exercise deskHeadCid IssueTransferLimit with dayLimit = satoshiLimit
-  
-  let parties = ScenarioPartiesHelper operator trader1 deskHead signingParty complianceOfficer
-  let contracts = ScenarioContractsHelper oemCid complCid signCid deskHeadCid trdr1Cid limitCid addressCid badAddressCid
-  return (parties, contracts, address, badAddress1)
-
-
-getTransferAndUTXO : ScenarioPartiesHelper -> ScenarioContractsHelper -> BitcoinAddress -> Satoshi -> Satoshi -> Scenario (ContractId UncheckedTransferRequest, ContractId UTXO)
-getTransferAndUTXO parties contracts address satoshiAmount fee = scenario do
+getTransferAndUTXO : ScriptPartiesHelper -> ScriptContractsHelper -> BitcoinAddress -> Satoshi -> Satoshi -> Script (ContractId UncheckedTransferRequest, ContractId UTXO)
+getTransferAndUTXO parties contracts address satoshiAmount fee = script do
 
   -- Create a UTXO and update the balance at owned address accordingly
-  ownedAddressCid <- parties.signingParty `submit` exercise contracts.signCid RegisterOwnedAddress with address = address
+  ownedAddressCid <- parties.signingParty `submit` exerciseCmd contracts.signCid RegisterOwnedAddress with address = address
   let utxoData = UTXOData with
                    address = address
                    txHash = TxHash "some tx hash"
@@ -123,46 +36,45 @@ getTransferAndUTXO parties contracts address satoshiAmount fee = scenario do
                    value = satoshiAmount `plus` fee
                    confirmed = Some (time (date 2019 Aug 22) 0 0 0)
                    sigScript = ScriptPubKey "some sig script"
+  reqUTXOUpdateCid <- submit parties.operator do
+    exerciseCmd contracts.oemCid RequestUTXOUpdate
   utxoCid <- parties.operator `submit` do
-    reqUTXOUpdateCid <- exercise contracts.oemCid RequestUTXOUpdate
-    utxoCid <- exercise contracts.oemCid RegisterUTXO with utxoData = utxoData
-    exercise ownedAddressCid UpdateBalance with
+    utxoCid <- exerciseCmd contracts.oemCid RegisterUTXO with utxoData = utxoData
+    exerciseCmd ownedAddressCid UpdateBalance with
       newBalance = satoshiAmount
       newNumTxs = 2
-    exercise reqUTXOUpdateCid AckUTXOUpdateRequest
+    exerciseCmd reqUTXOUpdateCid AckUTXOUpdateRequest
     return utxoCid
 
   -- Get a new transfer request
   transferRequestCid <-
-    parties.trader `submit` exercise contracts.traderCid
+    parties.trader `submit` exerciseCmd contracts.traderCid
       RequestTransfer with
         amount = satoshiAmount
         address = address
 
   return (transferRequestCid, utxoCid)
 
-transmit : ScenarioPartiesHelper -> ScenarioContractsHelper -> ContractId ValidatedTransferRequest -> Satoshi -> ContractId UTXO -> Scenario (Either InsufficientTransferRequest TransmittedTransfer)
-transmit parties contracts transferRequestCid fee utxoCid = scenario do
-  transferCid1 <- parties.operator `submit` exercise transferRequestCid PrepareToTransfer with
+transmit : ScriptPartiesHelper -> ScriptContractsHelper -> ContractId ValidatedTransferRequest -> Satoshi -> ContractId UTXO -> Script (Either InsufficientTransferRequest TransmittedTransfer)
+transmit parties contracts transferRequestCid fee utxoCid = script do
+  transferCid1 <- parties.operator `submit` exerciseCmd transferRequestCid PrepareToTransfer with
       signingPartyCid = contracts.signCid
       fee = fee
       availableTxInputCids = [utxoCid]
   case transferCid1 of
     Right newTransferCid -> do
-      transferCid2 <- parties.signingParty `submit` exercise newTransferCid SignTransfer with
+      transferCid2 <- parties.signingParty `submit` exerciseCmd newTransferCid SignTransfer with
         rawTx = RawTx "some raw Tx"
-      transferCid3 <- parties.trader `submit` exercise transferCid2 Confirm
-      transferCid4 <- parties.operator `submit` exercise transferCid3 Transmit with
+      transferCid3 <- parties.trader `submit` exerciseCmd transferCid2 Confirm
+      transferCid4 <- parties.operator `submit` exerciseCmd transferCid3 Transmit with
         message = "finalized"
-      submit parties.operator do
-        transfer <- fetch transferCid4
-        Right <$> return transfer
+      Some transfer <- queryContractId parties.operator transferCid4
+      Right <$> return transfer
     Left insufficientTransferRequestCid -> do
-      submit parties.operator do
-        transfer2 <- fetch insufficientTransferRequestCid
-        Left <$> return transfer2
+      Some transfer2 <- queryContractId parties.operator insufficientTransferRequestCid
+      Left <$> return transfer2
 
-simpleSuccessfulTransfer = scenario do
+simpleSuccessfulTransfer = script do
   let fee = Satoshi 1
   let satoshiAmount = Satoshi 500
 
@@ -170,7 +82,7 @@ simpleSuccessfulTransfer = scenario do
 
   (uncheckedTransferRequestCid, utxoCid) <- getTransferAndUTXO parties contracts address satoshiAmount fee
 
-  transferRequestResult <- parties.operator `submit` exercise uncheckedTransferRequestCid ValidateRequest
+  transferRequestResult <- parties.operator `submit` exerciseCmd uncheckedTransferRequestCid ValidateRequest
 
   transferRequestCid1 <- case transferRequestResult of
       LimitFail _ -> fail "expected successful address check, but got address problems"
@@ -183,7 +95,7 @@ simpleSuccessfulTransfer = scenario do
       Left insufficientTransferRequest -> insufficientTransferRequest.transferDetails
   details.amount === satoshiAmount
 
-overrideFailedChecksAndTransmit = scenario do
+overrideFailedChecksAndTransmit = script do
   let
     fee = Satoshi 1
     satoshiAmount = satoshiLimit `plus` fee `plus` (Satoshi 1)
@@ -192,20 +104,20 @@ overrideFailedChecksAndTransmit = scenario do
 
   (uncheckedTransferRequestCid, utxoCid) <- getTransferAndUTXO parties contracts badAddress satoshiAmount fee
 
-  transferRequestResult <- parties.operator `submit` exercise uncheckedTransferRequestCid ValidateRequest
+  transferRequestResult <- parties.operator `submit` exerciseCmd uncheckedTransferRequestCid ValidateRequest
 
   failedRequestCid1 <- case transferRequestResult of
     LimitFail failedRequestCid1 -> pure failedRequestCid1
     ReputationFail _ -> fail "expected failure due to limit violation, but limit check successfully passed"
     ValidationSuccess _ -> fail "expected failure due to limit and address violation, but both checks successfully passed"
-  (limitOverride, _) <- parties.deskHead `submit` exercise contracts.deskHeadCid ApproveRequestOverLimits with
+  (limitOverride, _) <- parties.deskHead `submit` exerciseCmd contracts.deskHeadCid ApproveRequestOverLimits with
     failedRequestCid = failedRequestCid1
     reason = "Desk head overrides limit failure"
     observers = []
   failedAddressCheckCid <- case limitOverride of
     Right _ -> fail "expected failure due to bad address, but address check successfully passed"
     Left failedAddressCheckCid -> pure failedAddressCheckCid
-  (addressOverride, _) <- parties.complianceOfficer `submit` exercise contracts.complCid ApproveRequestToBadAddress with
+  (addressOverride, _) <- parties.complianceOfficer `submit` exerciseCmd contracts.complCid ApproveRequestToBadAddress with
         failedRequestCid = failedAddressCheckCid
         reason = "Compliance officer trusts this address"
         observers = []
@@ -216,79 +128,89 @@ overrideFailedChecksAndTransmit = scenario do
       Left insufficientTransferRequest -> insufficientTransferRequest.transferDetails
   details.amount === satoshiAmount
 
-validTransferIncreasesLimitUsage = scenario do
+validTransferIncreasesLimitUsage = script do
   let fee = Satoshi 1
       goodAmount = Satoshi 1000
   (parties, contracts, goodAddress, _) <- onboarding
 
   (transferRequestCid, utxoCid) <- getTransferAndUTXO parties contracts goodAddress goodAmount fee
 
-  transferRequestResult <- parties.operator `submit` exercise transferRequestCid ValidateRequest
+  transferRequestResult <- parties.operator `submit` exerciseCmd transferRequestCid ValidateRequest
 
   requestCid <- case transferRequestResult of
     ValidationSuccess requestCid -> pure requestCid
     LimitFail _ -> fail "expected transfer request to be valid, but failed limit check"
     ReputationFail _ -> fail "expected transfer request to be valid, but failed address check"
-  parties.operator `submit` exercise requestCid PrepareToTransfer with
+  parties.operator `submit` exerciseCmd requestCid PrepareToTransfer with
     signingPartyCid = contracts.signCid
     fee = fee
     availableTxInputCids = [utxoCid]
   newLimit <- findNewLimit parties contracts
   newLimit.used === goodAmount `plus` fee
 
-overLimitTransferIncreasesLimitUsage = scenario do
+overLimitTransferIncreasesLimitUsage = script do
   let fee = Satoshi 1
       overLimitAmount = satoshiLimit `plus` Satoshi 1000
   (parties, contracts, goodAddress, _) <- onboarding
 
   (transferRequestCid, utxoCid) <- getTransferAndUTXO parties contracts goodAddress overLimitAmount fee
 
-  transferRequestResult <- parties.operator `submit` exercise transferRequestCid ValidateRequest
+  transferRequestResult <- parties.operator `submit` exerciseCmd transferRequestCid ValidateRequest
 
   failedRequestCid <- case transferRequestResult of
     LimitFail failedRequestCid -> pure failedRequestCid
     ValidationSuccess _ -> fail "expected failure due to limit violation, but limit check successfully passed"
     ReputationFail _ -> fail "expected transfer request to be valid, but failed address check"
-  (approvedRequestCid, _) <- parties.deskHead `submit` exercise contracts.deskHeadCid ApproveRequestOverLimits with
+  (approvedRequestCid, _) <- parties.deskHead `submit` exerciseCmd contracts.deskHeadCid ApproveRequestOverLimits with
     failedRequestCid = failedRequestCid
     reason = "Desk head overrides limit failure"
     observers = []
   validRequestCid <- case approvedRequestCid of
     Right validRequestCid -> pure validRequestCid
-    otherwise -> fail "expected transfer request to be valid, but failed address check"
-  parties.operator `submit` exercise validRequestCid PrepareToTransfer with
+    _ -> fail "expected transfer request to be valid, but failed address check"
+  parties.operator `submit` exerciseCmd validRequestCid PrepareToTransfer with
     signingPartyCid = contracts.signCid
     fee = fee
     availableTxInputCids = [utxoCid]
   newLimit <- findNewLimit parties contracts
   newLimit.used === overLimitAmount `plus` fee
 
-badAddressTransferIncreasesLimitUsage = scenario do
+badAddressTransferIncreasesLimitUsage = script do
   let fee = Satoshi 1
       overLimitAmount = Satoshi 1000
   (parties, contracts, _, badAddress) <- onboarding
 
   (transferRequestCid, utxoCid) <- getTransferAndUTXO parties contracts badAddress overLimitAmount fee
 
-  transferRequestResult <- parties.operator `submit` exercise transferRequestCid ValidateRequest
+  transferRequestResult <- parties.operator `submit` exerciseCmd transferRequestCid ValidateRequest
 
   failedRequestCid <- case transferRequestResult of
     ReputationFail failedRequestCid -> pure failedRequestCid
     ValidationSuccess _ -> fail "expected failure due to limit violation, but limit check successfully passed"
     LimitFail _ -> fail "expected transfer request to be within limit, but limit check failed"
-  (approvedRequestCid, _) <- parties.complianceOfficer `submit` exercise contracts.complCid ApproveRequestToBadAddress with
+  (approvedRequestCid, _) <- parties.complianceOfficer `submit` exerciseCmd contracts.complCid ApproveRequestToBadAddress with
     failedRequestCid = failedRequestCid
     reason = "Compliance officer trusts this address"
     observers = []
-  parties.operator `submit` exercise approvedRequestCid PrepareToTransfer with
+  parties.operator `submit` exerciseCmd approvedRequestCid PrepareToTransfer with
     signingPartyCid = contracts.signCid
     fee = fee
     availableTxInputCids = [utxoCid]
   newLimit <- findNewLimit parties contracts
   newLimit.used === overLimitAmount `plus` fee
 
-findNewLimit : ScenarioPartiesHelper -> ScenarioContractsHelper -> Scenario TransferLimit
-findNewLimit parties contracts = scenario do
-  deskHeadRole <- parties.operator `submit` fetch contracts.deskHeadCid
-  (_, newLimit) <- parties.operator `submit` fetchByKey @TransferLimit (parties.operator, parties.deskHead, deskHeadRole.deskName)
+findNewLimit : ScriptPartiesHelper -> ScriptContractsHelper -> Script TransferLimit
+findNewLimit parties contracts = script do
+  Some deskHeadRole <- queryContractId parties.operator contracts.deskHeadCid
+  (_, newLimit) <- parties.operator `submit` createAndExerciseCmd (Helper parties.operator) (FetchTransferLimitByKey (parties.operator, parties.deskHead, deskHeadRole.deskName))
   pure newLimit
+
+template Helper
+  with
+    p : Party
+  where
+    signatory p
+    choice FetchTransferLimitByKey : (ContractId TransferLimit, TransferLimit)
+      with k : (Party, Party, Text)
+      controller p
+      do fetchByKey @TransferLimit k
