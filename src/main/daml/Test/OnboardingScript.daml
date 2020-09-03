@@ -14,13 +14,32 @@ import Actors.DeskHead
 import Actors.Operator
 import Actors.SigningParty
 import Actors.Trader
+import Desk.Limit
 import Bitcoin.Types
 import Transfer.Address
 
 satoshiLimit : Satoshi
 satoshiLimit = Satoshi 100_000_000
 
-onboarding : Script ()
+data ScriptPartiesHelper = ScriptPartiesHelper with
+  operator : Party
+  trader : Party
+  deskHead : Party
+  signingParty : Party
+  complianceOfficer: Party
+
+
+data ScriptContractsHelper = ScriptContractsHelper with
+  oemCid: ContractId OnboardEntityMaster
+  complCid: ContractId ComplianceRole
+  signCid: ContractId SigningPartyRole
+  deskHeadCid: ContractId DeskHeadRole
+  traderCid: ContractId TraderRole
+  limitCid: ContractId TransferLimit
+  addressCid: ContractId DestinationAddress
+  badAddressCid: ContractId DestinationAddress
+
+onboarding : Script (ScriptPartiesHelper, ScriptContractsHelper, BitcoinAddress, BitcoinAddress)
 onboarding = do
   operator <- getParty "Operator"
   trader1 <- getParty "Trader1"
@@ -81,9 +100,11 @@ onboarding = do
   complianceOfficer `submit` exerciseCmd complCid AddObserverToAddress with newObserver = deskHead, addressCid = badAddressCid
 
   -- Issue Desk Limits
-  deskHead `submit` exerciseCmd deskHeadCid IssueTransferLimit with dayLimit = satoshiLimit
+  limitCid <- deskHead `submit` exerciseCmd deskHeadCid IssueTransferLimit with dayLimit = satoshiLimit
 
-  return ()
+  let parties = ScriptPartiesHelper operator trader1 deskHead signingParty complianceOfficer
+  let contracts = ScriptContractsHelper oemCid complCid signCid deskHeadCid trdr1Cid limitCid addressCid badAddressCid
+  return (parties, contracts, address, badAddress1)
 
 -- | Same as `getParty` scenarios but for DAML Scripts.
 getParty: Text -> Script Party
