@@ -9,6 +9,7 @@ FROM digitalasset/daml-sdk:${sdk_vsn} AS source
 WORKDIR /home/daml/
 
 COPY --chown=daml daml.yaml .
+COPY --chown=daml frontend-config.js .
 COPY --chown=daml src/main/daml ./src/main/daml
 
 FROM source
