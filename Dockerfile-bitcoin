@@ -9,17 +9,13 @@ RUN apt-get install --yes make curl
 
 RUN adduser --disabled-login --gecos "" btcuser
 
-# run following commands from user's home directory
-WORKDIR /home/btcuser
-
-ADD src/main/resources/bitcoin.conf /home/btcuser/btcData/
-
-RUN chown -R btcuser:btcuser /home/btcuser/btcData
-
 USER btcuser
+WORKDIR /home/btcuser
 
 COPY --chown=btcuser scripts/install-bitcoin.sh /tmp/install-bitcoin.sh
 RUN /tmp/install-bitcoin.sh 0.18.1
+
+COPY --chown=btcuser src/main/resources/bitcoin.conf /home/btcuser/btcData/
 
 WORKDIR /home/btcuser/btcData
 
