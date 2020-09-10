@@ -15,9 +15,9 @@ WORKDIR /home/btcuser
 COPY --chown=btcuser scripts/install-bitcoin.sh /tmp/install-bitcoin.sh
 RUN /tmp/install-bitcoin.sh 0.18.1
 
-COPY --chown=btcuser src/main/resources/bitcoin.conf /home/btcuser/btcData/
+COPY --chown=btcuser src/main/resources/bitcoin-docker.conf /home/btcuser/btcData/
 
 WORKDIR /home/btcuser/btcData
 
 EXPOSE 19091
-ENTRYPOINT /home/btcuser/.bitcoin/bitcoin-0.18.1/bin/bitcoind -datadir=/home/btcuser/btcData
+ENTRYPOINT /home/btcuser/.bitcoin/bitcoin-0.18.1/bin/bitcoind -datadir=/home/btcuser/btcData -conf=/home/btcuser/btcData/bitcoin-docker.conf

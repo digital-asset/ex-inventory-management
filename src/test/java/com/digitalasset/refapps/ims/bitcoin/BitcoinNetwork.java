@@ -19,7 +19,7 @@ public class BitcoinNetwork {
   private Path dataDir;
 
   public BitcoinNetwork() {
-    Path configFile = Paths.get("src/main/resources/bitcoin.conf").toAbsolutePath();
+    Path configFile = Paths.get("src/main/resources/bitcoin-standalone.conf").toAbsolutePath();
     dataDir = Paths.get("/tmp/bitcoin");
     daemon =
         new ProcessBuilder()

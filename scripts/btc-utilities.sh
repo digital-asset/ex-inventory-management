@@ -6,7 +6,7 @@
 # To be sourced by bash scripts.
 
 Resources="src/main/resources"
-ConfigFile="$Resources/bitcoin.conf"
+ConfigFile="$Resources/bitcoin-standalone.conf"
 
 get_config_value() {
   local key="$1"
