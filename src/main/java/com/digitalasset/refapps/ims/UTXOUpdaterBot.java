@@ -92,9 +92,9 @@ public class UTXOUpdaterBot {
                   newTxHashes.add(utxoData);
 
                   if (oldTxHashes.contains(utxoData)) {
-                    logger.debug("{} already exists", format(utxoData));
+                    logger.info("{} already exists", format(utxoData));
                   } else {
-                    logger.debug("Found new {}", format(utxoData));
+                    logger.info("Found new {}", format(utxoData));
                     Command command = operatorCid.exerciseRegisterUTXO(utxoData);
                     builder.addCommand(command);
                   }
