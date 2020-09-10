@@ -135,8 +135,8 @@ public class UTXOUpdaterBot {
   private static Set<UTXOData> getExistingHashes(Map<String, UTXO> utxoMap) {
     Set<UTXOData> existingTxHashes =
         utxoMap.values().stream().map(utxo -> utxo.utxoData).collect(Collectors.toSet());
-    logger.debug("Existing Hashes: ");
-    existingTxHashes.forEach(h -> logger.debug(format(h)));
+    logger.info("Existing Hashes: ");
+    existingTxHashes.forEach(h -> logger.info(format(h)));
     return existingTxHashes;
   }
 }
