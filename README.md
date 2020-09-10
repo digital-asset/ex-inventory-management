@@ -222,7 +222,7 @@ This application launches a bitcoin network in [regtest mode](https://bitcoin.or
 
 - The bitcoin client would require a totally different configuration file.
 - The lack of manual block generation would ruin the following steps: [Bitcoin setup](#setting-up-bitcoin-network), [bitcoin confirmation](#confirmations). You should mine or get coins from real users to increase your balance and wait for confirmations.
-- Private keys are available in `src/main/resources/bitcoin_data.regtest.md`. The configuration files `src/main/resources/bitcoin-*.conf` also stores the `rpcpassword` in plaintext. This should be hardened considerably before going to public.
+- Private keys are available in `src/main/resources/bitcoin_data.regtest.md`. The configuration files `src/main/resources/bitcoin-*.conf` also store the `rpcpassword` in plaintext. This should be hardened considerably before going to public.
 
 CONFIDENTIAL © 2019 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 Any unauthorized use, duplication or distribution is strictly prohibited.
