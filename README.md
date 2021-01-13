@@ -18,7 +18,6 @@ Crypto Inventory Management System (IMS) has been designed to make it easy and s
 #### Prerequisites
 Be sure you have the following installed:
 - [DAML SDK][DAML-URL]
-- Docker
 - Java
 - Maven
 - [Bitcoin Core][BTC-URL]
@@ -35,18 +34,6 @@ mvn clean package
 ### Starting the App
 
 **Note:** Make sure you have built the application with Maven (see: [Build with Maven](#build-with-maven)).
-
-There are two options:
-
-#### Option 1: Start App with Docker
-
-1. Type:
-    ```shell
-    docker-compose up --build
-    ```
-2. Open UI in a new browser tab with http://localhost:7500
-
-#### Option 2: Start App in Standalone
 
 1. Start the DAML Sandbox and Navigator. Type:
     ```shell
@@ -72,11 +59,6 @@ There are two options:
 
 ### Stopping the App
 
-#### Stopping Dockerized Run
-1. Stop the Docker containers or bots by pressing **Ctrl+C**. (Alternatively, you can also stop it by typing `docker-compose down`.)
-
-#### Stopping Standalone Run
-
 1. Stop the Bitcoin network
     ```shell
     scripts/stop-bitcoin.sh
@@ -88,7 +70,7 @@ There are two options:
 
 Reset the application by following these steps:
 1.  Stop the app by following the steps in [Stopping the App](#stopping-the-app) section.
-2.  Start the app in [Docker](#option-1:-start-app-with-docker) or [Standalone](#option-2:-start-app-in-standalone) by following the steps in the relevant section.
+2.  Start the app by following the steps in [Starting the App](#starting-the-app) section.
 
 ## User Guide
 
