@@ -36,7 +36,6 @@ commands:
           fail_only: true
           only_for_branches: master
           webhook: '${SLACK_WEBHOOK}'
-
   install_bitcoin:
     description: "Install the Bitcoin CLI tools"
     parameters:
@@ -183,6 +182,7 @@ workflows:
           context: refapps
       - integration_test:
           daml_sdk_version: "1.9.0"
+          bitcoin_cli_version: "0.18.1"
           context: refapps
   scheduled_test:
     triggers:
