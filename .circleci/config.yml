@@ -85,6 +85,8 @@ jobs:
     parameters:
       daml_sdk_version:
         type: string
+      bitcoin_cli_version:
+        type: string
     executor: mvn-executor
     steps:
       - checkout
