@@ -62,8 +62,7 @@ public class InventoryManagementIT {
   private static Sandbox sandbox =
       Sandbox.builder()
           .dar(RELATIVE_DAR_PATH)
-          .module(TEST_MODULE)
-          .startScript(TEST_SCENARIO)
+          .moduleAndScript(TEST_MODULE, TEST_SCENARIO)
           .setupAppCallback(
               client -> {
                 try {
