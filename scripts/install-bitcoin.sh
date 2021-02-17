@@ -41,7 +41,7 @@ download_binaries() {
   local url
   url=$(download_url)
   echo "Downloading $url ..."
-  curl -s "$(download_url)" -o $BinariesTar
+  curl --silent --show-error "$(download_url)" -o $BinariesTar
   echo "OK"
 }
 
