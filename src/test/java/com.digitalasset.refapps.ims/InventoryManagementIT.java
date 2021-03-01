@@ -257,14 +257,7 @@ public class InventoryManagementIT {
     long destinationBalance = currentOwnedBalances.get(goodAddress.address.unpack);
 
     // Rarely fails with  AssertionError: expected:<1000000> but was:<4999980000>
-    // the utxos 1000000 and 499... usually belong to different values,
-    // but when fails, they have the same wallet:
-    // Found new UTXO with index 0 of Tx
-    // 60d92d188c77d62b9b74e8981ecd1eb1763ef19c5c039a1f6933f73af730c4f1 (1000000
-    // muDrC4zKYrp2563QefqhZZ2ymWh2iVYa6F)
-    // Found new UTXO with index 1 of Tx
-    // 60d92d188c77d62b9b74e8981ecd1eb1763ef19c5c039a1f6933f73af730c4f1 (4998980000
-    // muDrC4zKYrp2563QefqhZZ2ymWh2iVYa6F)
+    // (internal issue: https://digitalasset.atlassian.net/browse/ERA-917)
     assertEquals(transferAmount, destinationBalance);
 
     long expectedChangeAddressBalance = (initialMiningReward - transferAmount - transactionFee);
