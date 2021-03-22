@@ -152,7 +152,8 @@ jobs:
       - run:
           name: Blackduck detect
           command: |
-            bash <(curl -s https://raw.githubusercontent.com/DACH-NY/security-blackduck/master/synopsys-detect) ci-build digitalasset_ex-inventory-management main \
+            bash <(curl -s https://raw.githubusercontent.com/DACH-NY/security-blackduck/master/synopsys-detect) \
+            ci-build digitalasset_ex-inventory-management main \
             --logging.level.com.synopsys.integration=DEBUG \
             --detect.notices.report=true \
             --detect.timeout=3600
