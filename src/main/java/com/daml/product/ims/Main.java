@@ -2,16 +2,16 @@
  * Copyright (c) 2019, Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.digitalasset.refapps.ims;
+package com.daml.product.ims;
 
 import bitcoin.types.BitcoinAddress;
 import com.daml.ledger.rxjava.DamlLedgerClient;
 import com.daml.ledger.rxjava.components.Bot;
-import com.digitalasset.refapps.ims.bitcoin.BTCService;
-import com.digitalasset.refapps.ims.bitcoin.BTCUtility;
-import com.digitalasset.refapps.ims.bitcoin.BitcoinClient;
-import com.digitalasset.refapps.ims.util.CliOptions;
-import com.digitalasset.refapps.ims.util.CommandsAndPendingSetBuilder;
+import com.daml.product.ims.bitcoin.BTCService;
+import com.daml.product.ims.bitcoin.BTCUtility;
+import com.daml.product.ims.bitcoin.BitcoinClient;
+import com.daml.product.ims.util.CliOptions;
+import com.daml.product.ims.util.CommandsAndPendingSetBuilder;
 import fr.acinq.bitcoin.Crypto;
 import java.io.IOException;
 import java.time.Duration;

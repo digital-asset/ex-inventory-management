@@ -2,16 +2,16 @@
  * Copyright (c) 2019, Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.digitalasset.refapps.ims;
+package com.daml.product.ims;
 
-import static com.digitalasset.refapps.ims.util.TemplateManager.filterTemplates;
+import static com.daml.product.ims.util.TemplateManager.filterTemplates;
 
 import com.daml.ledger.javaapi.data.*;
 import com.daml.ledger.rxjava.components.LedgerViewFlowable;
 import com.daml.ledger.rxjava.components.helpers.CommandsAndPendingSet;
 import com.daml.ledger.rxjava.components.helpers.CreatedContract;
 import com.daml.ledger.rxjava.components.helpers.TemplateUtils;
-import com.digitalasset.refapps.ims.util.CommandsAndPendingSetBuilder;
+import com.daml.product.ims.util.CommandsAndPendingSetBuilder;
 import com.google.common.collect.Sets;
 import io.reactivex.Flowable;
 import java.util.*;

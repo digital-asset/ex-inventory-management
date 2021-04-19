@@ -2,7 +2,7 @@
  * Copyright (c) 2019, Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.digitalasset.refapps.ims;
+package com.daml.product.ims;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
@@ -19,9 +19,9 @@ import com.daml.extensions.testing.ledger.DefaultLedgerAdapter;
 import com.daml.extensions.testing.utils.ContractWithId;
 import com.daml.ledger.javaapi.data.Identifier;
 import com.daml.ledger.javaapi.data.Party;
-import com.digitalasset.refapps.ims.bitcoin.BitcoinClient;
-import com.digitalasset.refapps.ims.bitcoin.BitcoinNetwork;
-import com.digitalasset.refapps.ims.util.CliOptions;
+import com.daml.product.ims.bitcoin.BitcoinClient;
+import com.daml.product.ims.bitcoin.BitcoinNetwork;
+import com.daml.product.ims.util.CliOptions;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
 import java.nio.file.Path;

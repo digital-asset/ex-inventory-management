@@ -2,11 +2,11 @@
  * Copyright (c) 2019, Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.digitalasset.refapps.ims.bitcoin;
+package com.daml.product.ims.bitcoin;
 
 import bitcoin.types.BitcoinAddress;
 import bitcoin.types.RawTx;
-import com.digitalasset.refapps.ims.util.Utility;
+import com.daml.product.ims.util.Utility;
 import fr.acinq.bitcoin.*;
 import java.io.IOException;
 import java.nio.file.Files;

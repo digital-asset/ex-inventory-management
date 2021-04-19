@@ -85,7 +85,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib</classpathPrefix>
-                            <mainClass>com.digitalasset.refapps.ims.Main</mainClass>
+                            <mainClass>com.daml.product.ims.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
