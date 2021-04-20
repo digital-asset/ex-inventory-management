@@ -22,55 +22,29 @@ Be sure you have the following installed:
 - Maven
 - [Bitcoin Core][BTC-URL]
 
-#### Build with Maven
-
-Type:
-```shell
-mvn clean package
-```
-
-**Note:** If you change the DAML models locally, you need to re-run this command before starting the application.
-
 ### Starting the App
 
-**Note:** Make sure you have built the application with Maven (see: [Build with Maven](#build-with-maven)).
+1. Build the App. Type:
+    ```shell
+    mvn clean package
+    ```
+    **Note:** If you change the DAML models locally, you need to re-run this command before starting the application.
 
-1. Start the DAML Sandbox and Navigator. Type:
+
+2. Use **separate terminals** to launch the individual components:
+
     ```shell
-    daml start --sandbox-option --address=localhost
+    launchers/sandbox+navigator+populate
+    launchers/automation
+    launchers/bitcoind
     ```
-    The navigator will automatically open in a new browser tab at http://localhost:7500.
-2. Start the automation logic by starting bots. Type:
-    ```shell
-    java -jar target/inventory-management-0.0.1-SNAPSHOT.jar
-    ```
-3. Set up the working directory for the local bitcoin network. If it does not exist. Type:
-    ```shell
-    mkdir /tmp/bitcoin
-    ```
-    If you want to start you bitcoin network completely clean and empty, just remove the data directory typing:
-    ```shell
-    rm -rf /tmp/bitcoin/regtest
-    ```
-4. To start the local bitcoin network type:
-    ```shell
-    bitcoind -datadir=/tmp/bitcoin -conf="$(pwd)/src/main/resources/bitcoin-standalone.conf" -daemon
-    ```
+
+    The navigator will automatically open in new browser tab at http://localhost:7500.
+    **Note:** The bitcoin network is started completely clean and empty for each execution.
 
 ### Stopping the App
 
-1. Stop the Bitcoin network
-    ```shell
-    scripts/stop-bitcoin.sh
-    ```
-2. Stop the bots by pressing **Ctrl+C**.
-3. Stop the Sandbox and the Navigator by pressing **Ctrl+C** in the DAML assistant.
-
-### Resetting the Prototype
-
-Reset the application by following these steps:
-1.  Stop the app by following the steps in [Stopping the App](#stopping-the-app) section.
-2.  Start the app by following the steps in [Starting the App](#starting-the-app) section.
+1. Stop the every running command by pressing **Ctrl+C**.
 
 ## User Guide
 
