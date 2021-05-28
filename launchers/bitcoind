@@ -10,4 +10,4 @@ DATADIR=$(mktemp -d)
 
 CONF="$(pwd)/src/main/resources/bitcoin-standalone.conf"
 
-bitcoind -datadir="$DATADIR" -conf="$CONF"
+exec bitcoind -datadir="$DATADIR" -conf="$CONF"
