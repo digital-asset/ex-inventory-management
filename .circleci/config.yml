@@ -69,7 +69,7 @@ jobs:
           path: target/daml-test-reports
       - store_artifacts:
           path: target/daml-test-reports
-      - slack_notification
+      #- slack_notification
 
   integration_test:
     parameters:
@@ -125,7 +125,7 @@ jobs:
             - "*.dar"
             - "lib"
             - "NOTICE"
-      - slack_notification
+      #- slack_notification
 
   blackduck_check:
     parameters:
@@ -163,7 +163,7 @@ jobs:
           root: .
           paths:
             - "NOTICE"
-      - slack_notification
+      #- slack_notification
 
 workflows:
   version: 2
